@@ -56,13 +56,13 @@ impl<T> BlockedOptionals8<T> {
         let uninit_ref = self.data.get_mut(index as usize)?;
         let uninit_val = core::mem::replace(uninit_ref, MaybeUninit::new(val));
 
+        self.mask |= 1 << index;
         if vacant {
             return None;
         }
 
         // SAFETY: The slot was occupied before replacement.
         // Therefore, it has been initialized properly.
-        self.mask |= 1 << index;
         Some(unsafe { uninit_val.assume_init() })
     }
 
@@ -77,5 +77,27 @@ impl<T> BlockedOptionals8<T> {
         // SAFETY: We have already verified that the current `index` is not vacant.
         self.mask &= !(1 << index);
         Some(unsafe { uninit_val.assume_init() })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn insert_replace_semantics() {
+        let mut block = BlockedOptionals8::default();
+        assert!(block.is_empty());
+
+        assert!(block.insert(0, 32).is_none());
+        assert!(block.insert(1, 64).is_none());
+
+        assert_eq!(block.insert(0, 1), Some(32));
+        assert_eq!(block.insert(1, 2), Some(64));
+
+        assert_eq!(block.remove(0), Some(1));
+        assert_eq!(block.remove(1), Some(2));
+
+        assert!(block.is_empty());
     }
 }
