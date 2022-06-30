@@ -188,4 +188,18 @@ mod tests {
 
         assert!(block.is_empty());
     }
+
+    #[test]
+    fn fully_initialized_removals() {
+        let mut block = Block8::<u8>::from([0, 1, 2, 3, 4, 5, 6, 7]);
+        assert_eq!(block.remove(0), Some(0));
+        assert_eq!(block.remove(1), Some(1));
+        assert_eq!(block.remove(2), Some(2));
+        assert_eq!(block.remove(3), Some(3));
+        assert_eq!(block.remove(4), Some(4));
+        assert_eq!(block.remove(5), Some(5));
+        assert_eq!(block.remove(6), Some(6));
+        assert_eq!(block.remove(7), Some(7));
+        assert!(block.is_empty());
+    }
 }
