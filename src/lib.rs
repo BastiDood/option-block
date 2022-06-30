@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(maybe_uninit_uninit_array)]
 
 use core::mem::MaybeUninit;
 
@@ -13,8 +12,13 @@ macro_rules! impl_blocked_optional {
 
         impl<T> Default for $name<T> {
             fn default() -> Self {
+                let block = MaybeUninit::<[MaybeUninit<T>; <$int>::BITS as usize]>::uninit();
                 Self {
-                    data: MaybeUninit::uninit_array(),
+                    // SAFETY: An uninitialized `[MaybeUninit<_>; LEN]` is valid.
+                    // This is supported by the nightly feature: `maybe_uninit_uninit_array`.
+                    // When this feature stabilizes, we may use the `MaybeUninit::uninit_array`
+                    // wrapper method instead, which effectively does the same transformation.
+                    data: unsafe { block.assume_init() },
                     mask: 0,
                 }
             }
