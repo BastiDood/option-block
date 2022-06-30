@@ -19,7 +19,7 @@ impl<T> Default for BlockedOptionals8<T> {
 
 impl<T> BlockedOptionals8<T> {
     /// Checks whether the item at the `index` is vacant (i.e. contains `None`).
-    pub const fn is_vacant(&self, index: u8) -> bool {
+    pub const fn is_vacant(&self, index: usize) -> bool {
         self.mask & (1 << index) == 0
     }
 
@@ -31,51 +31,49 @@ impl<T> BlockedOptionals8<T> {
         self.len() == 0
     }
 
-    pub fn get(&self, index: u8) -> Option<&T> {
+    pub fn get(&self, index: usize) -> Option<&T> {
         if self.is_vacant(index) {
-            return None;
+            None
+        } else {
+            // SAFETY: We have already verified that the current `index` is not vacant.
+            Some(unsafe { self.data[index].assume_init_ref() })
         }
-
-        // SAFETY: We have already verified that the current `index` is not vacant.
-        let uninit_ref = self.data.get(index as usize)?;
-        Some(unsafe { uninit_ref.assume_init_ref() })
     }
 
-    pub fn get_mut(&mut self, index: u8) -> Option<&mut T> {
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if self.is_vacant(index) {
-            return None;
+            None
+        } else {
+            // SAFETY: We have already verified that the current `index` is not vacant.
+            Some(unsafe { self.data[index].assume_init_mut() })
         }
-
-        // SAFETY: We have already verified that the current `index` is not vacant.
-        let uninit_ref = self.data.get_mut(index as usize)?;
-        Some(unsafe { uninit_ref.assume_init_mut() })
     }
 
-    pub fn insert(&mut self, index: u8, val: T) -> Option<T> {
+    /// Inserts the `val` at the `index`. If a value already exists, it returns `Some`
+    /// containing the old value. Otherwise, it returns `None`.
+    pub fn insert(&mut self, index: usize, val: T) -> Option<T> {
         let vacant = self.is_vacant(index);
-        let uninit_ref = self.data.get_mut(index as usize)?;
-        let uninit_val = core::mem::replace(uninit_ref, MaybeUninit::new(val));
-
+        let uninit_val = core::mem::replace(&mut self.data[index], MaybeUninit::new(val));
         self.mask |= 1 << index;
-        if vacant {
-            return None;
-        }
 
-        // SAFETY: The slot was occupied before replacement.
-        // Therefore, it has been initialized properly.
-        Some(unsafe { uninit_val.assume_init() })
+        if vacant {
+            None
+        } else {
+            // SAFETY: The slot was occupied before replacement.
+            // Therefore, it has been initialized properly.
+            Some(unsafe { uninit_val.assume_init() })
+        }
     }
 
-    pub fn remove(&mut self, index: u8) -> Option<T> {
+    pub fn remove(&mut self, index: usize) -> Option<T> {
         if self.is_vacant(index) {
             return None;
         }
 
-        let uninit_ref = self.data.get_mut(index as usize)?;
-        let uninit_val = core::mem::replace(uninit_ref, MaybeUninit::uninit());
+        let uninit_val = core::mem::replace(&mut self.data[index], MaybeUninit::uninit());
+        self.mask &= !(1 << index);
 
         // SAFETY: We have already verified that the current `index` is not vacant.
-        self.mask &= !(1 << index);
         Some(unsafe { uninit_val.assume_init() })
     }
 }
