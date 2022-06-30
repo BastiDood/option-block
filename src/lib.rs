@@ -131,6 +131,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn size_tests() {
+        use core::mem::size_of;
+        assert_eq!(size_of::<Block8<u8>>(), 8 + 1);
+        assert_eq!(size_of::<Block16<u8>>(), 16 + 2);
+        assert_eq!(size_of::<Block32<u8>>(), 32 + 4);
+        assert_eq!(size_of::<Block64<u8>>(), 64 + 8);
+        assert_eq!(size_of::<Block128<u8>>(), 128 + 16);
+    }
+
+    #[test]
     fn insert_replace_semantics() {
         let mut block = Block8::default();
         assert!(block.is_empty());
