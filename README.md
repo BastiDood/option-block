@@ -26,11 +26,24 @@ This assumption makes `NonZeroU64` eligible for the nullable pointer optimizatio
 
 ```rust
 use core::{mem::size_of, num::NonZeroU64};
-let _ = size_of::<Option<u64>>();        // 16
-let _ = size_of::<Option<NonZeroU64>>(); // 8
+assert_eq!(size_of::<Option<u64>>(), 16);
+assert_eq!(size_of::<Option<NonZeroU64>>(), 8);
 ```
 
-# Examples
+For this reason, a direct-address table which internally uses an array of `Option<T>` values will inevitably consume more memory than necessary. Unless the inner type is conveniently eligible for the nullable pointer optimization, the `enum` discriminant overhead will (at most) double the memory footprint.
+
+## A New Crate is Born!
+However, not all hope is lost. Observe that the discriminant for the `Option` type may actually be stored as a single bit. Therefore, it is possible to store multiple discriminants (for an array of optional values) in a single bit mask. This is exactly the abstraction that the `option-block` crate provides.
+
+This crate provides five primitives: `Block8`, `Block16`, `Block32`, `Block64`, and `Block128`. As its name suggests, a `Block8` is a block of at most 8 optional values, where the internal bit mask is a `u8` (one for each cell). The rest of the primitives are basically the 16-, 32-, 64-, and 128-element analogs of the `Block8`.
+
+```rust
+use core::mem::size_of;
+use option_block::Block8;
+
+assert_eq!(size_of::<[Option<u16>; 16]>(), 64);
+assert_eq!(size_of::<Block16<u16>>(), 34);
+```
 
 # Stack Limitations
 Since `option-block` allocates on the stack, one must handle the `Block64` and `Block128` types with care. In the extreme case of the `Block128` type, it allocates 128 instances of the inner data type plus 16 more bytes for the bit mask. Stack memory usage can easily skyrocket if too many are created. Thus, it is advised to use the larger block variants sparingly.

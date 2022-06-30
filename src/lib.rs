@@ -131,6 +131,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn readme_size_test() {
+        use core::mem::size_of;
+        assert_eq!(size_of::<[Option<u16>; 16]>(), 64);
+        assert_eq!(size_of::<Block16<u16>>(), 34);
+    }
+
+    #[test]
     fn size_tests() {
         use core::mem::size_of;
         assert_eq!(size_of::<Block8<u8>>(), 8 + 1);
