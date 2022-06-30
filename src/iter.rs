@@ -1,3 +1,5 @@
+//! By-value and by-reference iterator objects for the various block variants.
+
 use core::{iter::DoubleEndedIterator, ops::Range};
 
 macro_rules! impl_iterator_outer {
