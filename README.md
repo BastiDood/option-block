@@ -7,6 +7,31 @@ Specifically, `option-block` does not keep track of the next empty slot in the a
 
 > This crate is compatible with [`no_std` environments](https://docs.rust-embedded.org/book/intro/no-std.html)! Neither `std` nor `alloc` is necessary.
 
+# Example
+```rust
+let mut block = option_block::Block8::<u8>::default();
+
+assert!(block.is_empty());
+
+assert!(block.insert(0, 10).is_none());
+assert!(block.insert(1, 20).is_none());
+
+assert_eq!(block.insert(0, 100), Some(10));
+assert_eq!(block.insert(1, 200), Some(20));
+
+assert_eq!(block.get(0), Some(&100));
+assert_eq!(block.get(1), Some(&200));
+assert_eq!(block.remove(0), Some(100));
+assert_eq!(block.remove(1), Some(200));
+
+assert!(block.is_empty());
+
+assert_eq!(block.get(0), None);
+assert_eq!(block.get(1), None);
+assert_eq!(block.remove(0), None);
+assert_eq!(block.remove(1), None);
+```
+
 # Motivation
 ## The Nullable Pointer Optimization
 Sometimes, a direct-address table with a fixed-size allocation on the stack is sufficient for simple look-ups. That is, a heap-allocated `HashMap` and `Vec` may be overkill. Intuitively, one may be inclined to implement such a table using an array of `Option<T>` (for some type `T`). This is not ideal, however, because for most types, the size of an `Option<T>` (in bytes) is unnecessarily large.
