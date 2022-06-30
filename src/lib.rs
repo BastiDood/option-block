@@ -4,7 +4,7 @@
 use core::mem::MaybeUninit;
 
 pub struct BlockedOptionals8<T> {
-    data: [MaybeUninit<T>; 8],
+    data: [MaybeUninit<T>; u8::BITS as usize],
     mask: u8,
 }
 
@@ -13,6 +13,15 @@ impl<T> Default for BlockedOptionals8<T> {
         Self {
             data: MaybeUninit::uninit_array(),
             mask: 0,
+        }
+    }
+}
+
+impl<T> From<[T; u8::BITS as usize]> for BlockedOptionals8<T> {
+    fn from(vals: [T; 8]) -> Self {
+        Self {
+            data: vals.map(MaybeUninit::new),
+            mask: u8::MAX,
         }
     }
 }
