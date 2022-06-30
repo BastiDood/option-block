@@ -37,11 +37,11 @@ macro_rules! impl_blocked_optional {
 
         impl<T> $name<T> {
             /// Maximum capacity of the fixed-size block.
-            pub const CAPACITY: usize = <$int>::BITS as usize;
+            pub const CAPACITY: u32 = <$int>::BITS;
 
             /// Checks whether the item at the `index` is vacant (i.e. contains `None`).
             pub const fn is_vacant(&self, index: usize) -> bool {
-                assert!(index < Self::CAPACITY);
+                assert!(index < Self::CAPACITY as usize);
                 self.mask & (1 << index) == 0
             }
 
