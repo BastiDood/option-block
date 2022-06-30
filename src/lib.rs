@@ -98,31 +98,31 @@ macro_rules! impl_blocked_optional {
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u8`](u8),
-    /// which thus may contain at most 8 elements.
+    /// which may thus contain at most 8 elements.
     Block8 u8
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u16`](u16),
-    /// which thus may contain at most 16 elements.
+    /// which may thus contain at most 16 elements.
     Block16 u16
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u32`](u32),
-    /// which thus may contain at most 32 elements.
+    /// which may thus contain at most 32 elements.
     Block32 u32
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u64`](u64),
-    /// which thus may contain at most 64 elements.
+    /// which may thus contain at most 64 elements.
     Block64 u64
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u128`](u128),
-    /// which thus may contain at most 128 elements.
+    /// which may thus contain at most 128 elements.
     Block128 u128
 }
 
