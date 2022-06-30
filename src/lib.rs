@@ -157,6 +157,15 @@ mod tests {
     use super::*;
 
     #[test]
+    fn capacity_tests() {
+        assert_eq!(Block8::<()>::CAPACITY, 8);
+        assert_eq!(Block16::<()>::CAPACITY, 16);
+        assert_eq!(Block32::<()>::CAPACITY, 32);
+        assert_eq!(Block64::<()>::CAPACITY, 64);
+        assert_eq!(Block128::<()>::CAPACITY, 128);
+    }
+
+    #[test]
     fn size_tests() {
         use core::mem::size_of;
         assert_eq!(size_of::<Block8<u8>>(), 8 + 1);
