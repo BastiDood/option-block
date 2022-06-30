@@ -34,19 +34,30 @@ macro_rules! impl_blocked_optional {
         }
 
         impl<T> $name<T> {
+            /// Maximum capacity of the fixed-size block.
+            pub const CAPACITY: usize = <$int>::BITS as usize;
+
             /// Checks whether the item at the `index` is vacant (i.e. contains `None`).
             pub const fn is_vacant(&self, index: usize) -> bool {
+                assert!(index < Self::CAPACITY);
                 self.mask & (1 << index) == 0
             }
 
+            /// Returns the number of non-null elements in the block.
             pub const fn len(&self) -> u32 {
                 self.mask.count_ones()
             }
 
+            /// Returns `true` if the block contains zero elements.
             pub const fn is_empty(&self) -> bool {
                 self.len() == 0
             }
 
+            /// Attempts to retrieve a shared reference to the element at `index`.
+            /// Returns `None` if the slot is vacant (i.e. uninitialized).
+            ///
+            /// # Panic
+            /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
             pub fn get(&self, index: usize) -> Option<&T> {
                 if self.is_vacant(index) {
                     None
@@ -56,6 +67,11 @@ macro_rules! impl_blocked_optional {
                 }
             }
 
+            /// Attempts to retrieve an exclusive reference to the element at
+            /// `index`. Returns `None` if the slot is vacant (i.e. uninitialized).
+            ///
+            /// # Panic
+            /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
             pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
                 if self.is_vacant(index) {
                     None
@@ -67,6 +83,9 @@ macro_rules! impl_blocked_optional {
 
             /// Inserts the `val` at the `index`. If a value already exists, it returns `Some`
             /// containing the old value. Otherwise, it returns `None`.
+            ///
+            /// # Panic
+            /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
             pub fn insert(&mut self, index: usize, val: T) -> Option<T> {
                 let vacant = self.is_vacant(index);
                 let uninit_val = core::mem::replace(&mut self.data[index], MaybeUninit::new(val));
@@ -81,6 +100,11 @@ macro_rules! impl_blocked_optional {
                 }
             }
 
+            /// Removes the value at the `index`. If a value already exists, it returns `Some`
+            /// containing that value. Otherwise, it returns `None`.
+            ///
+            /// # Panic
+            /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
             pub fn remove(&mut self, index: usize) -> Option<T> {
                 if self.is_vacant(index) {
                     return None;
