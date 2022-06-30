@@ -1,4 +1,4 @@
 [package]
-name = "blocked-optionals"
+name = "option-block"
 version = "0.1.0"
 edition = "2021"
