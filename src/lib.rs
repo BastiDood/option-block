@@ -1,10 +1,12 @@
 #![no_std]
 #![doc = include_str!("../README.md")]
 
+mod iter;
+
 use core::mem::MaybeUninit;
 
 macro_rules! impl_blocked_optional {
-    ($(#[$attrs:meta])* $name:ident $int:ty) => {
+    ($(#[$attrs:meta])* $name:ident $into_iter:ident $iter:ident $int:ty) => {
         $(#[$attrs])*
         #[derive(Debug)]
         pub struct $name<T> {
@@ -45,6 +47,17 @@ macro_rules! impl_blocked_optional {
                 Self {
                     data: vals.map(MaybeUninit::new),
                     mask: <$int>::MAX,
+                }
+            }
+        }
+
+        impl<T> IntoIterator for $name<T> {
+            type Item = T;
+            type IntoIter = iter::$into_iter<T>;
+            fn into_iter(self) -> Self::IntoIter {
+                iter::$into_iter {
+                    block: self,
+                    index: 0..Self::CAPACITY as usize,
                 }
             }
         }
@@ -132,6 +145,13 @@ macro_rules! impl_blocked_optional {
                 // SAFETY: We have already verified that the current `index` is not vacant.
                 Some(unsafe { uninit_val.assume_init() })
             }
+
+            pub fn iter(&self) -> iter::$iter<T> {
+                iter::$iter {
+                    block: self,
+                    index: 0..Self::CAPACITY as usize,
+                }
+            }
         }
     };
 }
@@ -139,31 +159,31 @@ macro_rules! impl_blocked_optional {
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u8`](u8),
     /// which may thus contain at most 8 elements.
-    Block8 u8
+    Block8 Block8IntoIter Block8Iter u8
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u16`](u16),
     /// which may thus contain at most 16 elements.
-    Block16 u16
+    Block16 Block16IntoIter Block16Iter u16
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u32`](u32),
     /// which may thus contain at most 32 elements.
-    Block32 u32
+    Block32 Block32IntoIter Block32Iter u32
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u64`](u64),
     /// which may thus contain at most 64 elements.
-    Block64 u64
+    Block64 Block64IntoIter Block64Iter u64
 }
 
 impl_blocked_optional! {
     /// A fixed block of optionals masked by a [`u128`](u128),
     /// which may thus contain at most 128 elements.
-    Block128 u128
+    Block128 Block128IntoIter Block128Iter u128
 }
 
 #[cfg(test)]
