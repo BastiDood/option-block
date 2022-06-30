@@ -6,10 +6,24 @@ use core::mem::MaybeUninit;
 macro_rules! impl_blocked_optional {
     ($(#[$attrs:meta])* $name:ident $int:ty) => {
         $(#[$attrs])*
+        #[derive(Debug)]
         pub struct $name<T> {
             data: [MaybeUninit<T>; <$int>::BITS as usize],
             mask: $int,
         }
+
+        /// Since the current implementation relies on [`MaybeUninit`](MaybeUninit), the
+        /// block can only be cloned if the internal data is trivially copyable (bitwise).
+        impl<T: Copy> Clone for $name<T> {
+            fn clone(&self) -> Self {
+                Self {
+                    data: self.data,
+                    mask: self.mask,
+                }
+            }
+        }
+
+        impl<T: Copy> Copy for $name<T> { }
 
         impl<T> Default for $name<T> {
             fn default() -> Self {
