@@ -1,4 +1,9 @@
 [package]
 name = "option-block"
+description = "A minimal utility Rust crate for small, fixed-size blocks of optional types."
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Some-Dood/option-block"
+repository = "https://github.com/Some-Dood/option-block"
