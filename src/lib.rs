@@ -24,6 +24,7 @@ macro_rules! impl_blocked_optional {
             }
         }
 
+        /// Create a fully initialized direct-access table.
         impl<T> From<[T; <$int>::BITS as usize]> for $name<T> {
             fn from(vals: [T; <$int>::BITS as usize]) -> Self {
                 Self {
