@@ -1,4 +1,5 @@
 #![no_std]
+#![doc = include_str!("../README.md")]
 
 use core::mem::MaybeUninit;
 
@@ -154,13 +155,6 @@ impl_blocked_optional! {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn readme_size_test() {
-        use core::mem::size_of;
-        assert_eq!(size_of::<[Option<u16>; 16]>(), 64);
-        assert_eq!(size_of::<Block16<u16>>(), 34);
-    }
 
     #[test]
     fn size_tests() {

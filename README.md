@@ -39,7 +39,7 @@ This crate provides five primitives: `Block8`, `Block16`, `Block32`, `Block64`, 
 
 ```rust
 use core::mem::size_of;
-use option_block::Block8;
+use option_block::Block16;
 
 assert_eq!(size_of::<[Option<u16>; 16]>(), 64);
 assert_eq!(size_of::<Block16<u16>>(), 34);
