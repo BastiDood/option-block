@@ -47,6 +47,7 @@ macro_rules! impl_blocked_optional {
                     // must manually invoke the `clone` method ourselves.
                     let data = unsafe { self.data[idx].assume_init_ref() };
                     block.data[idx] = MaybeUninit::new(data.clone());
+                    block.mask |= 1 << idx;
                 }
 
                 block
