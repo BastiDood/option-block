@@ -24,15 +24,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Format
-      run: cargo fmt --check
-    - name: Lint
-      run: cargo clippy
+    - name: Check Format
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --check
     - name: Build Debug
-      run: cargo build --verbose
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --verbose
+    - name: Lint Code
+      uses: actions-rs/cargo@v1
+      with:
+        command: clippy
     - name: Run Tests on Debug
-      run: cargo test --verbose
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --verbose
     - name: Build Release
-      run: cargo build --release --verbose
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release --verbose
     - name: Run Tests on Release
-      run: cargo test --release --verbose
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --release --verbose
