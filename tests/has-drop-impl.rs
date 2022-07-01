@@ -37,10 +37,7 @@ fn block_of_optional_strings() {
 fn insert_strings_twice() {
     let mut block = Block8::<String>::default();
     assert!(block.insert(0, String::from("Hello")).is_none());
-    assert_eq!(
-        block.insert(0, String::from("World")).as_deref(),
-        Some("Hello")
-    );
+    assert_eq!(block.insert(0, String::from("World")).as_deref(), Some("Hello"));
 }
 
 #[test]
@@ -84,10 +81,7 @@ fn default_getters() {
     let mut block = Block8::<Rc<u8>>::default();
     let resource = Rc::new(10);
 
-    assert!(Rc::ptr_eq(
-        block.get_or_else(0, || resource.clone()),
-        &resource
-    ));
+    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
     assert_eq!(Rc::strong_count(&resource), 2);
     assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
     assert_eq!(Rc::strong_count(&resource), 3);
@@ -97,10 +91,7 @@ fn default_getters() {
     assert_eq!(Rc::strong_count(&resource), 3);
     assert_eq!(Rc::strong_count(&other), 2);
 
-    assert!(Rc::ptr_eq(
-        block.get_or_else(0, || resource.clone()),
-        &resource
-    ));
+    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
     assert_eq!(Rc::strong_count(&resource), 3);
     assert_eq!(Rc::strong_count(&other), 2);
     assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
