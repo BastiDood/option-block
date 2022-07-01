@@ -160,6 +160,27 @@ macro_rules! impl_blocked_optional {
                 }
             }
 
+            /// If the slot at the given `index` is already occupied, this method returns a mutable
+            /// reference to the inner data. Otherwise, if the slot is vacant, then this method
+            /// inserts the value constructed by `func`. A mutable reference to the inner data is
+            /// also returned.
+            pub fn get_or_else(&mut self, index: usize, func: impl FnOnce() -> T) -> &mut T {
+                if self.is_vacant(index) {
+                    // SAFETY: Since this slot is initially vacant, then there are no destructors
+                    // that need to be run. It should be impossible to leak resources here.
+                    self.mask |= 1 << index;
+                    self.data[index].write(func())
+                } else {
+                    // SAFETY: We have already verified that the current `index` is not vacant.
+                    unsafe { self.data[index].assume_init_mut() }
+                }
+            }
+
+            /// Convenience wrapper for the [`get_or_else`](Self::get_or_else) method.
+            pub fn get_or(&mut self, index: usize, val: T) -> &mut T {
+                self.get_or_else(index, || val)
+            }
+
             /// Inserts the `val` at the `index`. If a value already exists, it returns `Some`
             /// containing the old value. Otherwise, it returns `None`.
             ///
@@ -201,6 +222,13 @@ macro_rules! impl_blocked_optional {
                     block: self,
                     index: 0..Self::CAPACITY as usize,
                 }
+            }
+        }
+
+        impl<T: Default> $name<T> {
+            /// Convenience wrapper for the [`get_or_else`](Self::get_or_else) method.
+            pub fn get_or_default(&mut self, index: usize) -> &mut T {
+                self.get_or_else(index, Default::default)
             }
         }
     };
