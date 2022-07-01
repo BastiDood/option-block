@@ -4,6 +4,7 @@ description = "A minimal utility Rust crate for small, fixed-size blocks of opti
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+authors = ["Basti Ortiz <39114273+Some-Dood@users.noreply.github.com>"]
 readme = "README.md"
 homepage = "https://github.com/Some-Dood/option-block"
 repository = "https://github.com/Some-Dood/option-block"
