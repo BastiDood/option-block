@@ -57,3 +57,20 @@ fn ensure_zero_resource_leaks() {
     drop(other);
     assert_eq!(Rc::strong_count(&resource), 1);
 }
+
+#[test]
+fn partial_cloning() {
+    use std::rc::Rc;
+    let resource = Rc::<str>::from("Hello World");
+    let mut block = Block8::default();
+    assert!(block.insert(4, resource.clone()).is_none());
+    assert!(block.insert(6, resource.clone()).is_none());
+
+    assert_eq!(Rc::strong_count(&resource), 3);
+    let other = block.clone();
+    assert_eq!(Rc::strong_count(&resource), 5);
+    drop(other);
+    assert_eq!(Rc::strong_count(&resource), 3);
+    drop(block);
+    assert_eq!(Rc::strong_count(&resource), 1);
+}
