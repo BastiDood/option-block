@@ -36,6 +36,7 @@ macro_rules! impl_blocked_optional {
         impl<T: Clone> Clone for $name<T> {
             fn clone(&self) -> Self {
                 let mut block = Self::default();
+                block.mask = self.mask;
 
                 for idx in 0..Self::CAPACITY as usize {
                     if self.is_vacant(idx) {
@@ -47,7 +48,6 @@ macro_rules! impl_blocked_optional {
                     // must manually invoke the `clone` method ourselves.
                     let data = unsafe { self.data[idx].assume_init_ref() };
                     block.data[idx] = MaybeUninit::new(data.clone());
-                    block.mask |= 1 << idx;
                 }
 
                 block
