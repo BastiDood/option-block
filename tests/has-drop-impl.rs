@@ -37,7 +37,10 @@ fn block_of_optional_strings() {
 fn insert_strings_twice() {
     let mut block = Block8::<String>::default();
     assert!(block.insert(0, String::from("Hello")).is_none());
-    assert_eq!(block.insert(0, String::from("World")).as_deref(), Some("Hello"));
+    assert_eq!(
+        block.insert(0, String::from("World")).as_deref(),
+        Some("Hello")
+    );
 }
 
 #[test]
