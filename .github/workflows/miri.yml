@@ -18,7 +18,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  miri:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
