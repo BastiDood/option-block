@@ -8,4 +8,4 @@ authors = ["Basti Ortiz <39114273+Some-Dood@users.noreply.github.com>"]
 readme = "README.md"
 homepage = "https://github.com/Some-Dood/option-block"
 repository = "https://github.com/Some-Dood/option-block"
-exclude = [".github", "rustfmt.toml"]
+exclude = [".github", "rustfmt.toml", "tests"]
