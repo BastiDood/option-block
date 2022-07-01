@@ -55,9 +55,20 @@ macro_rules! impl_blocked_optional {
             type Item = T;
             type IntoIter = iter::$into_iter<T>;
             fn into_iter(self) -> Self::IntoIter {
-                iter::$into_iter {
+                Self::IntoIter {
                     block: self,
                     index: 0..Self::CAPACITY as usize,
+                }
+            }
+        }
+
+        impl<'a, T> IntoIterator for &'a $name<T> {
+            type Item = &'a T;
+            type IntoIter = iter::$iter<'a, T>;
+            fn into_iter(self) -> Self::IntoIter {
+                Self::IntoIter {
+                    block: self,
+                    index: 0..$name::<T>::CAPACITY as usize,
                 }
             }
         }
