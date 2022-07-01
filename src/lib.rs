@@ -17,18 +17,41 @@ macro_rules! impl_blocked_optional {
             mask: $int,
         }
 
-        /// Since the current implementation relies on [`MaybeUninit`](MaybeUninit), the
-        /// block can only be cloned if the internal data is trivially copyable (bitwise).
-        impl<T: Copy> Clone for $name<T> {
-            fn clone(&self) -> Self {
-                Self {
-                    data: self.data,
-                    mask: self.mask,
+        /// Ensure that all remaining items in the block are dropped. Since the implementation
+        /// internally uses [`MaybeUninit`](MaybeUninit), we **must** manually drop the valid
+        /// (i.e. initialized) contents ourselves.
+        impl<T> Drop for $name<T> {
+            fn drop(&mut self) {
+                for i in 0..Self::CAPACITY as usize {
+                    if let Some(val) = self.remove(i) {
+                        drop(val); // No memory leaks!
+                    }
                 }
             }
         }
 
-        impl<T: Copy> Copy for $name<T> { }
+        /// Since the current implementation relies on [`MaybeUninit`](MaybeUninit), the
+        /// block can only be cloned if the internal data is trivially copyable (bitwise).
+        /// It is necessary that the type does not implement `Drop`.
+        impl<T: Clone> Clone for $name<T> {
+            fn clone(&self) -> Self {
+                let mut block = Self::default();
+
+                for idx in 0..Self::CAPACITY as usize {
+                    if self.is_vacant(idx) {
+                        continue;
+                    }
+
+                    // SAFETY: This slot is not vacant, and hence initialized.
+                    // To ensure that no resources are leaked or aliased, we
+                    // must manually invoke the `clone` method ourselves.
+                    let data = unsafe { self.data[idx].assume_init_ref() };
+                    block.data[idx] = MaybeUninit::new(data.clone());
+                }
+
+                block
+            }
+        }
 
         impl<T> Default for $name<T> {
             fn default() -> Self {
