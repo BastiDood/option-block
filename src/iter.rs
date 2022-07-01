@@ -4,6 +4,7 @@ use core::ops::Range;
 
 macro_rules! impl_iterator_outer {
     ($name:ident $into_iter:ident $iter:ident) => {
+        /// By-value iterator that consumes the block allocation.
         pub struct $into_iter<T> {
             pub(crate) block: $crate::$name<T>,
             pub(crate) index: Range<usize>,
@@ -21,6 +22,7 @@ macro_rules! impl_iterator_outer {
             }
         }
 
+        /// By-reference iterator that borrows from the block allocation.
         pub struct $iter<'a, T> {
             pub(crate) block: &'a $crate::$name<T>,
             pub(crate) index: Range<usize>,
