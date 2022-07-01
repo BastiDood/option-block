@@ -1,4 +1,17 @@
 //! By-value and by-reference iterator objects for the various block variants.
+//! Note that these types cannot be used directly. They are simply part of the
+//! public interface just in case one needs to explicitly "name" the iterator
+//! object in their code.
+//!
+//! # Example
+//!
+//! ```rust
+//! let block: option_block::Block8<_> = [10, 8, 1].into_iter().enumerate().collect();
+//! assert_eq!(block.get(0), Some(&10));
+//! assert_eq!(block.get(1), Some(&8));
+//! assert_eq!(block.get(2), Some(&1));
+//! assert!(block.get(3).is_none());
+//! ```
 
 use core::ops::Range;
 
