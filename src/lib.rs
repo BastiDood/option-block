@@ -239,16 +239,14 @@ mod tests {
 
     #[test]
     fn check_iterators() {
-        let mut block = Block8::<usize>::from([0, 1, 2, 3, 4, 5, 6, 7]);
+        let block = Block8::<usize>::from([0, 1, 2, 3, 4, 5, 6, 7]);
 
-        for i in 0..8 {
-            assert_eq!(block.get(i), Some(&i));
+        for (idx, &val) in block.iter().enumerate() {
+            assert_eq!(idx, val);
         }
 
-        for i in 0..8 {
-            assert_eq!(block.remove(i), Some(i));
+        for (idx, val) in block.into_iter().enumerate() {
+            assert_eq!(idx, val);
         }
-
-        assert!(block.is_empty());
     }
 }

@@ -1,6 +1,6 @@
 //! By-value and by-reference iterator objects for the various block variants.
 
-use core::{iter::DoubleEndedIterator, ops::Range};
+use core::ops::Range;
 
 macro_rules! impl_iterator_outer {
     ($name:ident $into_iter:ident $iter:ident) => {
@@ -21,17 +21,6 @@ macro_rules! impl_iterator_outer {
             }
         }
 
-        impl<T> DoubleEndedIterator for $into_iter<T> {
-            fn next_back(&mut self) -> Option<Self::Item> {
-                Some(loop {
-                    let idx = self.index.next_back()?;
-                    if let Some(val) = self.block.remove(idx) {
-                        break val;
-                    }
-                })
-            }
-        }
-
         pub struct $iter<'a, T> {
             pub(crate) block: &'a $crate::$name<T>,
             pub(crate) index: Range<usize>,
@@ -42,17 +31,6 @@ macro_rules! impl_iterator_outer {
             fn next(&mut self) -> Option<Self::Item> {
                 Some(loop {
                     let idx = self.index.next()?;
-                    if let Some(val) = self.block.get(idx) {
-                        break val;
-                    }
-                })
-            }
-        }
-
-        impl<'a, T> DoubleEndedIterator for $iter<'a, T> {
-            fn next_back(&mut self) -> Option<Self::Item> {
-                Some(loop {
-                    let idx = self.index.next_back()?;
                     if let Some(val) = self.block.get(idx) {
                         break val;
                     }
