@@ -5,6 +5,7 @@ version = "0.2.0"
 edition = "2021"
 license = "MIT"
 authors = ["Basti Ortiz <39114273+Some-Dood@users.noreply.github.com>"]
+categories = ["data-structures", "embedded", "no-std"]
 readme = "README.md"
 homepage = "https://github.com/Some-Dood/option-block"
 repository = "https://github.com/Some-Dood/option-block"
