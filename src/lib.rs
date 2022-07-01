@@ -3,7 +3,10 @@
 
 pub mod iter;
 
-use core::mem::MaybeUninit;
+use core::{
+    mem::MaybeUninit,
+    ops::{Index, IndexMut},
+};
 
 macro_rules! impl_blocked_optional {
     ($(#[$attrs:meta])* $name:ident $into_iter:ident $iter:ident $int:ty) => {
@@ -48,6 +51,19 @@ macro_rules! impl_blocked_optional {
                     data: vals.map(MaybeUninit::new),
                     mask: <$int>::MAX,
                 }
+            }
+        }
+
+        impl<T> Index<usize> for $name<T> {
+            type Output = T;
+            fn index(&self, idx: usize) -> &Self::Output {
+                self.get(idx).expect("slot is vacant")
+            }
+        }
+
+        impl<T> IndexMut<usize> for $name<T> {
+            fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+                self.get_mut(idx).expect("slot is vacant")
             }
         }
 
@@ -247,6 +263,26 @@ mod tests {
 
         for (idx, val) in block.into_iter().enumerate() {
             assert_eq!(idx, val);
+        }
+    }
+
+    #[test]
+    fn indexing_operations() {
+        use core::ops::Range;
+        type Block = Block8<usize>;
+        const RANGE: Range<usize> = 0..Block::CAPACITY as usize;
+        let mut block = Block::from([0, 1, 2, 3, 4, 5, 6, 7]);
+
+        for i in RANGE {
+            assert_eq!(block[i], i);
+        }
+
+        for i in RANGE {
+            block[i] *= 2;
+        }
+
+        for i in RANGE {
+            assert_eq!(block[i], i * 2);
         }
     }
 }
