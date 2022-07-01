@@ -33,7 +33,6 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --verbose
     - name: Lint Code
       uses: actions-rs/cargo@v1
       with:
@@ -42,14 +41,13 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --verbose
     - name: Build Release
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --release --verbose
+        args: --release
     - name: Run Tests on Release
       uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --release --verbose
+        args: --release
