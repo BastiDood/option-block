@@ -90,6 +90,24 @@ macro_rules! impl_blocked_optional {
             }
         }
 
+        impl<T> FromIterator<(usize, T)> for $name<T> {
+            fn from_iter<I>(iter: I) -> Self
+            where
+                I: IntoIterator<Item = (usize, T)>
+            {
+                let mut block = Self::default();
+
+                for (idx, val) in iter {
+                    // SAFETY: The `insert` method interally invokes `MaybeUninit::assume_init`.
+                    // Since it returns the old data by-value (if any), the `Drop` implementation
+                    // should be implicitly invoked. No resources can be leaked here.
+                    block.insert(idx, val);
+                }
+
+                block
+            }
+        }
+
         impl<T> IntoIterator for $name<T> {
             type Item = T;
             type IntoIter = iter::$into_iter<T>;
