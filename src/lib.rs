@@ -355,4 +355,17 @@ mod tests {
             assert_eq!(block[i], i * 2);
         }
     }
+
+    #[test]
+    fn default_getters() {
+        let mut block = Block8::<u16>::default();
+
+        assert_eq!(block.get_or_else(0, || 5), &mut 5);
+        assert_eq!(block.get_or(1, 10), &mut 10);
+        assert_eq!(block.get_or_default(2), &mut 0);
+
+        assert_eq!(block.get_or_else(0, || 3), &mut 5);
+        assert_eq!(block.get_or(1, 100), &mut 10);
+        assert_eq!(block.get_or_default(2), &mut 0);
+    }
 }
