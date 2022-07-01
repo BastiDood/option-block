@@ -84,7 +84,10 @@ fn default_getters() {
     let mut block = Block8::<Rc<u8>>::default();
     let resource = Rc::new(10);
 
-    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
+    assert!(Rc::ptr_eq(
+        block.get_or_else(0, || resource.clone()),
+        &resource
+    ));
     assert_eq!(Rc::strong_count(&resource), 2);
     assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
     assert_eq!(Rc::strong_count(&resource), 3);
@@ -94,7 +97,10 @@ fn default_getters() {
     assert_eq!(Rc::strong_count(&resource), 3);
     assert_eq!(Rc::strong_count(&other), 2);
 
-    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
+    assert!(Rc::ptr_eq(
+        block.get_or_else(0, || resource.clone()),
+        &resource
+    ));
     assert_eq!(Rc::strong_count(&resource), 3);
     assert_eq!(Rc::strong_count(&other), 2);
     assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
