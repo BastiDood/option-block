@@ -7,12 +7,14 @@ on:
       - 'README.md'
       - 'Cargo.toml'
       - 'src/**.rs'
+      - 'tests/**.rs'
   pull_request:
     branches: main
     paths:
       - 'README.md'
       - 'Cargo.toml'
       - 'src/**.rs'
+      - 'tests/**.rs'
 
 env:
   CARGO_TERM_COLOR: always
