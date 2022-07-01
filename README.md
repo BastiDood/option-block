@@ -47,7 +47,7 @@ Consider an `Option<u64>`. The [`core::mem::size_of`](https://doc.rust-lang.org/
 
 To resolve the `enum` discriminant overhead, the standard library provides the [`core::num::NonZeroU64`](https://doc.rust-lang.org/nightly/core/num/struct.NonZeroU64.html) type. The `NonZeroU64` is a zero-cost wrapper for `u64` that is assumed to be non-zero (as its name suggests).
 
-This assumption makes `NonZeroU64` eligible for the nullable pointer optimization. That is, an `Option<NonZeroU64>` is `None` if it contains `0`; otherwise, it is the `Some` variant (which a valid non-zero value). We may thus remove the overhead since the value already implicitly encodes the discriminant. An `Option<NonZeroU64>` is now just 8 bytes!
+This assumption makes `NonZeroU64` eligible for the nullable pointer optimization. That is, an `Option<NonZeroU64>` is `None` if it contains `0`; otherwise, it is the `Some` variant (which has a valid non-zero value). We may thus remove the overhead since the value already implicitly encodes the discriminant. An `Option<NonZeroU64>` is now just 8 bytes!
 
 ```rust
 use core::{mem::size_of, num::NonZeroU64};
