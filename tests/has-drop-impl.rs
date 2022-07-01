@@ -77,3 +77,34 @@ fn partial_cloning() {
     drop(block);
     assert_eq!(Rc::strong_count(&resource), 1);
 }
+
+#[test]
+fn default_getters() {
+    use std::rc::Rc;
+    let mut block = Block8::<Rc<u8>>::default();
+    let resource = Rc::new(10);
+
+    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
+    assert_eq!(Rc::strong_count(&resource), 2);
+    assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
+    assert_eq!(Rc::strong_count(&resource), 3);
+
+    let other = block.get_or_default(2).clone();
+    assert!(!Rc::ptr_eq(&other, &resource));
+    assert_eq!(Rc::strong_count(&resource), 3);
+    assert_eq!(Rc::strong_count(&other), 2);
+
+    assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
+    assert_eq!(Rc::strong_count(&resource), 3);
+    assert_eq!(Rc::strong_count(&other), 2);
+    assert!(Rc::ptr_eq(block.get_or(1, resource.clone()), &resource));
+    assert_eq!(Rc::strong_count(&resource), 3);
+    assert_eq!(Rc::strong_count(&other), 2);
+    assert!(Rc::ptr_eq(block.get_or_default(2), &other));
+    assert_eq!(Rc::strong_count(&resource), 3);
+    assert_eq!(Rc::strong_count(&other), 2);
+
+    drop(block);
+    assert_eq!(Rc::strong_count(&resource), 1);
+    assert_eq!(Rc::strong_count(&other), 1);
+}
