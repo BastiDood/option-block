@@ -1,0 +1,34 @@
+name: Latest Stable Rust
+
+on:
+  push:
+    branches: main
+    paths:
+      - 'Cargo.toml'
+      - 'src/**.rs'
+  pull_request:
+    branches: main
+    paths:
+      - 'Cargo.toml'
+      - 'src/**.rs'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Format
+      run: cargo fmt --check
+    - name: Lint
+      run: cargo clippy
+    - name: Build Debug
+      run: cargo build --verbose
+    - name: Run Tests on Debug
+      run: cargo test --verbose
+    - name: Build Release
+      run: cargo build --release --verbose
+    - name: Run Tests on Release
+      run: cargo test --release --verbose
