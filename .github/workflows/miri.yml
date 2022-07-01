@@ -1,0 +1,41 @@
+name: Run on Rust Miri
+
+on:
+  push:
+    branches: main
+    paths:
+      - 'README.md'
+      - 'Cargo.toml'
+      - 'src/**.rs'
+  pull_request:
+    branches: main
+    paths:
+      - 'README.md'
+      - 'Cargo.toml'
+      - 'src/**.rs'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Nightly Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          override: true
+          components: miri
+      - name: Setup Miri
+        uses: actions-rs/cargo@v1
+        with:
+          command: miri
+          args: setup
+      - name: Run Miri
+        uses: actions-rs/cargo@v1
+        with:
+          command: miri
+          args: test
