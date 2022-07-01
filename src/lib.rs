@@ -30,9 +30,6 @@ macro_rules! impl_blocked_optional {
             }
         }
 
-        /// Since the current implementation relies on [`MaybeUninit`](MaybeUninit), the
-        /// block can only be cloned if the internal data is trivially copyable (bitwise).
-        /// It is necessary that the type does not implement `Drop`.
         impl<T: Clone> Clone for $name<T> {
             fn clone(&self) -> Self {
                 let mut block = Self::default();
