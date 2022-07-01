@@ -1,3 +1,6 @@
+# 0.2.1 (July 2, 2022)
+This patch release mainly features documentation-related improvements. In particular, it has been made clearer that the `iter` module is not meant to be directly used. Rather, it is only part of the public interface so that users have the option to explicitly "name" the iterator objects in their code.
+
 # 0.2.0 (July 1, 2022)
 ## Undefined Behavior Resolved
 This release fixes a critical oversight in the use of [`core::mem::MaybeUninit`](https://doc.rust-lang.org/nightly/core/mem/union.MaybeUninit.html). Internally, `option-block` uses `MaybeUninit` to allocate an array which serves as the direct-address table on the stack.
