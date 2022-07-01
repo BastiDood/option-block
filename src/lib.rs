@@ -368,4 +368,13 @@ mod tests {
         assert_eq!(block.get_or(1, 100), &mut 10);
         assert_eq!(block.get_or_default(2), &mut 0);
     }
+
+    #[test]
+    fn from_iterator_enumerate() {
+        let block: Block8<_> = [10, 8, 1].into_iter().enumerate().collect();
+        assert_eq!(block.get(0), Some(&10));
+        assert_eq!(block.get(1), Some(&8));
+        assert_eq!(block.get(2), Some(&1));
+        assert!(block.get(3).is_none());
+    }
 }
