@@ -233,6 +233,7 @@ macro_rules! impl_blocked_optional {
                 Some(unsafe { uninit_val.assume_init() })
             }
 
+            /// Create a by-reference iterator for this block.
             pub fn iter(&self) -> iter::$iter<T> {
                 iter::$iter {
                     block: self,
