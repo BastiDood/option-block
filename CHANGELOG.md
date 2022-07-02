@@ -1,3 +1,9 @@
+# 0.2.2 (July 2, 2022)
+## Documentation Changes
+* Outdated documentation regarding the `Clone` implementation has been removed.
+* Added doc-comment about the `iter` method.
+* Clarified that the `is_vacant` method may panic when the given `index` is out of bounds.
+
 # 0.2.1 (July 2, 2022)
 This patch release mainly features documentation-related improvements. In particular, it has been made clearer that the `iter` module is not meant to be directly used. Rather, it is only part of the public interface so that users have the option to explicitly "name" the iterator objects in their code.
 
