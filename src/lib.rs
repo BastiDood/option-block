@@ -23,9 +23,7 @@ macro_rules! impl_blocked_optional {
         impl<T> Drop for $name<T> {
             fn drop(&mut self) {
                 for i in 0..Self::CAPACITY as usize {
-                    if let Some(val) = self.remove(i) {
-                        drop(val); // No memory leaks!
-                    }
+                    self.remove(i); // No memory leaks!
                 }
             }
         }
