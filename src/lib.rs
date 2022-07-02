@@ -133,6 +133,9 @@ macro_rules! impl_blocked_optional {
             pub const CAPACITY: u32 = <$int>::BITS;
 
             /// Checks whether the item at the `index` is vacant (i.e. contains `None`).
+            ///
+            /// # Panic
+            /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
             pub const fn is_vacant(&self, index: usize) -> bool {
                 assert!(index < Self::CAPACITY as usize);
                 self.mask & (1 << index) == 0
