@@ -1,4 +1,4 @@
-name: Latest Stable Rust
+name: Run Tests
 
 on:
   push:
@@ -20,7 +20,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  stable:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -51,3 +51,24 @@ jobs:
       with:
         command: test
         args: --release
+  miri:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Nightly Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          override: true
+          components: miri
+      - name: Setup Miri
+        uses: actions-rs/cargo@v1
+        with:
+          command: miri
+          args: setup
+      - name: Run Miri
+        uses: actions-rs/cargo@v1
+        with:
+          command: miri
+          args: test
