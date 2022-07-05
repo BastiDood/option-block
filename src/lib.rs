@@ -146,7 +146,7 @@ macro_rules! impl_blocked_optional {
 
             /// Returns `true` if the block contains zero elements.
             pub const fn is_empty(&self) -> bool {
-                self.len() == 0
+                self.mask == 0
             }
 
             /// Attempts to retrieve a shared reference to the element at `index`.
