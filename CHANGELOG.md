@@ -14,7 +14,7 @@ This release fixes a critical oversight in the use of [`core::mem::MaybeUninit`]
 However, the original implementation did _not_ implement the `Drop` trait for the block variants. For non-trivial types with destructors (i.e. types that implement `Drop`), this leads to leaked memory and resources (at best). This is because `MaybeUninit` requires its contents to be manually dropped by the owner. In the worst case, however, the failure to invoke the `Drop` implementation leads to various (implementation-specific) undefined behavior.
 
 ```rust
-let mut block = option_block::Block8::<String>::default();
+let mut block = option_block::Block8::default();
 block.insert(0, String::from("Hello"));
 
 // This leaks the string because `Drop` was (originally) not implemented!
