@@ -41,7 +41,7 @@ macro_rules! impl_blocked_optional {
                     // SAFETY: This slot is not vacant, and hence initialized.
                     // To ensure that no resources are leaked or aliased, we
                     // must manually invoke the `clone` method ourselves.
-                    let data = unsafe { self.data[idx].assume_init_ref() };
+                    let data = unsafe { self.get_unchecked(idx) };
                     block.data[idx] = MaybeUninit::new(data.clone());
                 }
 
@@ -149,6 +149,17 @@ macro_rules! impl_blocked_optional {
                 self.mask == 0
             }
 
+            /// Returns an immutable reference to the value at `index`.
+            /// See the [`get`](Self::get) method for the safe, checked
+            /// version of this method.
+            ///
+            /// # Safety
+            /// The queried value **must** be properly initialized. Otherwise,
+            /// the behavior is undefined.
+            pub const unsafe fn get_unchecked(&self, index: usize) -> &T {
+                self.data[index].assume_init_ref()
+            }
+
             /// Attempts to retrieve a shared reference to the element at `index`.
             /// Returns `None` if the slot is vacant (i.e. uninitialized).
             ///
@@ -159,8 +170,19 @@ macro_rules! impl_blocked_optional {
                     None
                 } else {
                     // SAFETY: We have already verified that the current `index` is not vacant.
-                    Some(unsafe { self.data[index].assume_init_ref() })
+                    Some(unsafe { self.get_unchecked(index) })
                 }
+            }
+
+            /// Returns a mutable reference to the value at `index`.
+            /// See the [`get_mut`](Self::get_mut) method for the safe,
+            /// checked version of this method.
+            ///
+            /// # Safety
+            /// The queried value **must** be properly initialized. Otherwise,
+            /// the behavior is undefined.
+            pub unsafe fn get_unchecked_mut(&mut self, index: usize) -> &mut T {
+                self.data[index].assume_init_mut()
             }
 
             /// Attempts to retrieve an exclusive reference to the element at
@@ -173,14 +195,14 @@ macro_rules! impl_blocked_optional {
                     None
                 } else {
                     // SAFETY: We have already verified that the current `index` is not vacant.
-                    Some(unsafe { self.data[index].assume_init_mut() })
+                    Some(unsafe { self.get_unchecked_mut(index) })
                 }
             }
 
             /// If the slot at the given `index` is already occupied, this method returns a mutable
             /// reference to the inner data. Otherwise, if the slot is vacant, then this method
             /// inserts the value constructed by `func`. A mutable reference to the inner data is
-            /// also returned.
+            /// nevertheless returned.
             pub fn get_or_else(&mut self, index: usize, func: impl FnOnce() -> T) -> &mut T {
                 if self.is_vacant(index) {
                     // SAFETY: Since this slot is initially vacant, then there are no destructors
@@ -189,7 +211,7 @@ macro_rules! impl_blocked_optional {
                     self.data[index].write(func())
                 } else {
                     // SAFETY: We have already verified that the current `index` is not vacant.
-                    unsafe { self.data[index].assume_init_mut() }
+                    unsafe { self.get_unchecked_mut(index) }
                 }
             }
 
