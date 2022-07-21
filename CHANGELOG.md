@@ -1,3 +1,19 @@
+# 0.3.0 (Unreleased)
+## New Unchecked Getters
+Users now have the option to skip the validation step when getting a reference to a value in the block. However, this should be sparingly used because it is `unsafe`. If improperly used, the method returns garbage memory, which may invoke undefined behavior.
+
+```rust
+let mut block = option_block::Block8::default();
+block.insert(0, 100);
+
+// Safe! 👍
+assert_eq!(block.get(0), Some(&100));
+assert_eq!(unsafe { block.get_unchecked(0) }, &100);
+
+// Undefined Behavior! ⚠
+let _ = unsafe { block.get_unchecked(1) };
+```
+
 # 0.2.2 (July 2, 2022)
 ## Documentation Changes
 * Outdated documentation regarding the `Clone` implementation has been removed.
