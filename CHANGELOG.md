@@ -1,4 +1,4 @@
-# 0.3.0 (Unreleased)
+# 0.3.0 (July 22, 2022)
 ## New Unchecked Getters
 Users now have the option to skip the validation step when getting a reference to a value in the block. However, this should be sparingly used because it is `unsafe`. If improperly used, the method returns garbage memory, which may invoke undefined behavior.
 
