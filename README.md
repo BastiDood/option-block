@@ -70,5 +70,8 @@ assert_eq!(size_of::<[Option<u16>; 16]>(), 64);
 assert_eq!(size_of::<Block16<u16>>(), 34);
 ```
 
+# Implementation Details
+Further internal details are explained in narrative format in a supplementary article titled ["Dipping Toes into Unsafe Code"](https://dev.to/somedood/dipping-toes-into-unsafe-code-2nkh).
+
 # Stack Limitations
 Since `option-block` allocates on the stack, one must handle the `Block64` and `Block128` types with care. In the extreme case of the `Block128` type, it allocates 128 instances of the inner data type plus 16 more bytes for the bit mask. Stack memory usage can easily skyrocket if too many are created. Thus, it is advised to use the larger block variants sparingly.
