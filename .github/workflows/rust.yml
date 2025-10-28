@@ -23,52 +23,30 @@ jobs:
   stable:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
     - name: Check Format
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: --check
+      run: cargo fmt --check
     - name: Build Debug
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
+      run: cargo build
     - name: Lint Code
-      uses: actions-rs/cargo@v1
-      with:
-        command: clippy
+      run: cargo clippy
     - name: Run Tests on Debug
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
+      run: cargo test
     - name: Build Release
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release
+      run: cargo build --release
     - name: Run Tests on Release
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --release
+      run: cargo test --release
   miri:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Nightly Toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
-          profile: minimal
-          override: true
           components: miri
       - name: Setup Miri
-        uses: actions-rs/cargo@v1
-        with:
-          command: miri
-          args: setup
+        run: cargo miri setup
       - name: Run Miri
-        uses: actions-rs/cargo@v1
-        with:
-          command: miri
-          args: test
+        run: cargo miri test
