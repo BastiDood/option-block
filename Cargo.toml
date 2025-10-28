@@ -9,4 +9,4 @@ categories = ["data-structures", "embedded", "no-std"]
 readme = "README.md"
 homepage = "https://github.com/BastiDood/option-block"
 repository = "https://github.com/BastiDood/option-block"
-exclude = [".github", "rustfmt.toml", "tests"]
+include = ["src", "CHANGELOG.md", "LICENSE", "README.md"]
