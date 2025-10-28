@@ -1,6 +1,9 @@
 //! This test module checks the `Drop` implementation for the `Block` variants.
 //! Since [`MaybeUninit`](core::mem::MaybeUninit) is used internally, we must
 //! manually drop the contents of the blocks.
+//!
+//! This is separated from the unit tests simply because we require the `alloc`
+//! crate to run these tests.
 
 use option_block::Block8;
 

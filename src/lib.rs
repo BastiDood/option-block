@@ -2,16 +2,20 @@
 #![deny(warnings)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(test)]
+mod tests;
+
 /// By-value and by-reference iterator objects for the various block variants.
 pub mod iter;
 
 use core::{
-	mem::MaybeUninit,
+	mem::{ManuallyDrop, MaybeUninit},
 	ops::{Index, IndexMut},
+	ptr,
 };
 
 macro_rules! impl_blocked_optional {
-    ($(#[$attrs:meta])* $name:ident $into_iter:ident $iter:ident $int:ty) => {
+    ($(#[$attrs:meta])* $name:ident $into_iter:ident $iter:ident $iter_mut:ident $int:ty) => {
         $(#[$attrs])*
         #[derive(Debug)]
         pub struct $name<T> {
@@ -21,7 +25,7 @@ macro_rules! impl_blocked_optional {
 
         /// Ensure that all remaining items in the block are dropped. Since the implementation
         /// internally uses [`MaybeUninit`](MaybeUninit), we **must** manually drop the valid
-        /// (i.e. initialized) contents ourselves.
+        /// (i.e., initialized) contents ourselves.
         impl<T> Drop for $name<T> {
             fn drop(&mut self) {
                 for i in 0..Self::CAPACITY as usize {
@@ -96,7 +100,7 @@ macro_rules! impl_blocked_optional {
                 let mut block = Self::default();
 
                 for (idx, val) in iter {
-                    // SAFETY: The `insert` method interally invokes `MaybeUninit::assume_init`.
+                    // SAFETY: The `insert` method internally invokes `MaybeUninit::assume_init`.
                     // Since it returns the old data by-value (if any), the `Drop` implementation
                     // should be implicitly invoked. No resources can be leaked here.
                     block.insert(idx, val);
@@ -110,10 +114,17 @@ macro_rules! impl_blocked_optional {
             type Item = T;
             type IntoIter = iter::$into_iter<T>;
             fn into_iter(self) -> Self::IntoIter {
-                Self::IntoIter {
-                    block: self,
-                    index: 0..Self::CAPACITY as usize,
-                }
+                // We need to prevent `self` from invoking `Drop` prematurely when this scope
+                // finishes. We thus wrap `self` in `ManuallyDrop` to progressively drop
+                // each element as the iterator is consumed.
+                let this = ManuallyDrop::new(self);
+                let mask = this.mask;
+
+                // SAFETY: Reading the data pointer effectively "moves" the data out of `this`,
+                // which allows us to pass ownership of the `data` to `Self::IntoIter` without
+                // invoking the `Drop` impl prematurely (thanks to `ManuallyDrop` from earlier).
+                let iter = unsafe { ptr::read(&this.data) }.into_iter().enumerate();
+                Self::IntoIter { iter, mask }
             }
         }
 
@@ -122,8 +133,19 @@ macro_rules! impl_blocked_optional {
             type IntoIter = iter::$iter<'a, T>;
             fn into_iter(self) -> Self::IntoIter {
                 Self::IntoIter {
-                    block: self,
-                    index: 0..$name::<T>::CAPACITY as usize,
+                    iter: self.data.iter().enumerate(),
+                    mask: self.mask,
+                }
+            }
+        }
+
+        impl<'a, T> IntoIterator for &'a mut $name<T> {
+            type Item = &'a mut T;
+            type IntoIter = iter::$iter_mut<'a, T>;
+            fn into_iter(self) -> Self::IntoIter {
+                Self::IntoIter {
+                    iter: self.data.iter_mut().enumerate(),
+                    mask: self.mask,
                 }
             }
         }
@@ -261,8 +283,16 @@ macro_rules! impl_blocked_optional {
             /// Create a by-reference iterator for this block.
             pub fn iter(&self) -> iter::$iter<'_, T> {
                 iter::$iter {
-                    block: self,
-                    index: 0..Self::CAPACITY as usize,
+                    iter: self.data.iter().enumerate(),
+                    mask: self.mask,
+                }
+            }
+
+            /// Create a mutable by-reference iterator for this block.
+            pub fn iter_mut(&mut self) -> iter::$iter_mut<'_, T> {
+                iter::$iter_mut {
+                    iter: self.data.iter_mut().enumerate(),
+                    mask: self.mask,
                 }
             }
         }
@@ -279,116 +309,29 @@ macro_rules! impl_blocked_optional {
 impl_blocked_optional! {
 	/// A fixed block of optionals masked by a [`u8`](u8),
 	/// which may thus contain at most 8 elements.
-	Block8 Block8IntoIter Block8Iter u8
+	Block8 Block8IntoIter Block8Iter Block8IterMut u8
 }
 
 impl_blocked_optional! {
 	/// A fixed block of optionals masked by a [`u16`](u16),
 	/// which may thus contain at most 16 elements.
-	Block16 Block16IntoIter Block16Iter u16
+	Block16 Block16IntoIter Block16Iter Block16IterMut u16
 }
 
 impl_blocked_optional! {
 	/// A fixed block of optionals masked by a [`u32`](u32),
 	/// which may thus contain at most 32 elements.
-	Block32 Block32IntoIter Block32Iter u32
+	Block32 Block32IntoIter Block32Iter Block32IterMut u32
 }
 
 impl_blocked_optional! {
 	/// A fixed block of optionals masked by a [`u64`](u64),
 	/// which may thus contain at most 64 elements.
-	Block64 Block64IntoIter Block64Iter u64
+	Block64 Block64IntoIter Block64Iter Block64IterMut u64
 }
 
 impl_blocked_optional! {
 	/// A fixed block of optionals masked by a [`u128`](u128),
 	/// which may thus contain at most 128 elements.
-	Block128 Block128IntoIter Block128Iter u128
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn capacity_tests() {
-		assert_eq!(Block8::<()>::CAPACITY, 8);
-		assert_eq!(Block16::<()>::CAPACITY, 16);
-		assert_eq!(Block32::<()>::CAPACITY, 32);
-		assert_eq!(Block64::<()>::CAPACITY, 64);
-		assert_eq!(Block128::<()>::CAPACITY, 128);
-	}
-
-	#[test]
-	fn size_tests() {
-		use core::mem::size_of;
-		assert_eq!(size_of::<Block8<u8>>(), 8 + 1);
-		assert_eq!(size_of::<Block16<u8>>(), 16 + 2);
-		assert_eq!(size_of::<Block32<u8>>(), 32 + 4);
-		assert_eq!(size_of::<Block64<u8>>(), 64 + 8);
-		assert_eq!(size_of::<Block128<u8>>(), 128 + 16);
-	}
-
-	#[test]
-	fn insert_replace_semantics() {
-		let mut block = Block8::default();
-		assert!(block.is_empty());
-
-		assert!(block.insert(0, 32).is_none());
-		assert!(block.insert(1, 64).is_none());
-
-		assert_eq!(block.insert(0, 1), Some(32));
-		assert_eq!(block.insert(1, 2), Some(64));
-
-		assert_eq!(block.remove(0), Some(1));
-		assert_eq!(block.remove(1), Some(2));
-
-		assert!(block.is_empty());
-	}
-
-	#[test]
-	fn check_iterators() {
-		let block = Block8::<usize>::from([0, 1, 2, 3, 4, 5, 6, 7]);
-
-		for (idx, &val) in block.iter().enumerate() {
-			assert_eq!(idx, val);
-		}
-
-		for (idx, val) in block.into_iter().enumerate() {
-			assert_eq!(idx, val);
-		}
-	}
-
-	#[test]
-	fn indexing_operations() {
-		use core::ops::Range;
-		type Block = Block8<usize>;
-		const RANGE: Range<usize> = 0..Block::CAPACITY as usize;
-		let mut block = Block::from([0, 1, 2, 3, 4, 5, 6, 7]);
-
-		for i in RANGE {
-			assert_eq!(block[i], i);
-		}
-
-		for i in RANGE {
-			block[i] *= 2;
-		}
-
-		for i in RANGE {
-			assert_eq!(block[i], i * 2);
-		}
-	}
-
-	#[test]
-	fn default_getters() {
-		let mut block = Block8::<u16>::default();
-
-		assert_eq!(block.get_or_else(0, || 5), &mut 5);
-		assert_eq!(block.get_or(1, 10), &mut 10);
-		assert_eq!(block.get_or_default(2), &mut 0);
-
-		assert_eq!(block.get_or_else(0, || 3), &mut 5);
-		assert_eq!(block.get_or(1, 100), &mut 10);
-		assert_eq!(block.get_or_default(2), &mut 0);
-	}
+	Block128 Block128IntoIter Block128Iter Block128IterMut u128
 }
