@@ -1,5 +1,14 @@
 # 0.4.0 (October 29, 2025)
 
+## `iter_mut` is now supported!
+
+A long-standing shortcoming of the crate is its missing `iter_mut` implementation. This version finally adds the missing piece to the iteration story.
+
+> [!NOTE]
+> Internally, the crate has been refactored to leverage [`core::array`] iterator primitives for improved safety.
+
+[`core::array`]: https://doc.rust-lang.org/stable/core/array/index.html
+
 ## Rust 2024 Edition
 
 The crate now uses Rust 2024, which bumps the `rust-version` to `1.85.0`. This is arguably an invisible change as most `no_std` use cases tend to require the nightly toolchain anyway. 😅
