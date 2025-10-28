@@ -1,7 +1,6 @@
-//! By-value and by-reference iterator objects for the various block variants.
-//! Note that these types cannot be used directly. They are simply part of the
-//! public interface just in case one needs to explicitly "name" the iterator
-//! object in their code.
+//! By-value and by-reference iterator objects for the various block variants. Note that these
+//! types aren't meant to be used directly. They are simply part of the public interface just
+//! in case one needs to explicitly "name" the iterator object in their code.
 //!
 //! # Example
 //!

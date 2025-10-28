@@ -2,6 +2,7 @@
 #![deny(warnings)]
 #![doc = include_str!("../README.md")]
 
+/// By-value and by-reference iterator objects for the various block variants.
 pub mod iter;
 
 use core::{
