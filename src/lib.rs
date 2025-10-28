@@ -1,4 +1,5 @@
 #![no_std]
+#![deny(warnings)]
 #![doc = include_str!("../README.md")]
 
 pub mod iter;
@@ -157,7 +158,7 @@ macro_rules! impl_blocked_optional {
             /// The queried value **must** be properly initialized. Otherwise,
             /// the behavior is undefined.
             pub const unsafe fn get_unchecked(&self, index: usize) -> &T {
-                self.data[index].assume_init_ref()
+                unsafe { self.data[index].assume_init_ref() }
             }
 
             /// Attempts to retrieve a shared reference to the element at `index`.
@@ -182,7 +183,7 @@ macro_rules! impl_blocked_optional {
             /// The queried value **must** be properly initialized. Otherwise,
             /// the behavior is undefined.
             pub unsafe fn get_unchecked_mut(&mut self, index: usize) -> &mut T {
-                self.data[index].assume_init_mut()
+                unsafe { self.data[index].assume_init_mut() }
             }
 
             /// Attempts to retrieve an exclusive reference to the element at
@@ -257,7 +258,7 @@ macro_rules! impl_blocked_optional {
             }
 
             /// Create a by-reference iterator for this block.
-            pub fn iter(&self) -> iter::$iter<T> {
+            pub fn iter(&self) -> iter::$iter<'_, T> {
                 iter::$iter {
                     block: self,
                     index: 0..Self::CAPACITY as usize,
