@@ -1,3 +1,7 @@
+# 0.4.1 (October 29, 2025)
+
+A minor corrective release that includes the integration tests into the bundled package. No crate behaviors are affected. This is mainly for documentation.
+
 # 0.4.0 (October 29, 2025)
 
 ## `iter_mut` is now supported!
