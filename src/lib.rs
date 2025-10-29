@@ -2,9 +2,6 @@
 #![deny(warnings)]
 #![doc = include_str!("../README.md")]
 
-#[cfg(test)]
-mod tests;
-
 /// By-value and by-reference iterator objects for the various block variants.
 pub mod iter;
 

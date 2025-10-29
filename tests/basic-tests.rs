@@ -1,4 +1,7 @@
-use super::*;
+//! Basic functionality tests for option-block.
+//! These tests cover core operations, iterators, and basic correctness.
+
+use option_block::{Block8, Block16, Block32, Block64, Block128};
 
 #[test]
 fn capacity_tests() {
