@@ -242,9 +242,7 @@ fn iterator_correctness_full_block() {
 	let block8 = Block8::<u8>::from([0, 1, 2, 3, 4, 5, 6, 7]);
 	assert_eq!(block8.iter().count(), 8);
 
-	let block16 = Block16::<u16>::from([
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	]);
+	let block16 = Block16::<u16>::from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 	assert_eq!(block16.iter().count(), 16);
 
 	// Verify values are correct
