@@ -22,6 +22,20 @@ macro_rules! impl_iterator_outer {
 			pub(crate) mask: $int,
 		}
 
+		impl<T> Drop for $into_iter<T> {
+			fn drop(&mut self) {
+				// Drop any remaining initialized elements when the iterator is dropped early
+				for (i, item) in self.iter.by_ref() {
+					if self.mask & (1 << i) != 0 {
+						// SAFETY: The bitmask guarantees this slot is initialized.
+						drop(unsafe { item.assume_init() });
+						// The value is dropped immediately at the end of this scope
+					}
+					// Vacant slots don't need dropping
+				}
+			}
+		}
+
 		impl<T> Iterator for $into_iter<T> {
 			type Item = T;
 			fn next(&mut self) -> Option<Self::Item> {
