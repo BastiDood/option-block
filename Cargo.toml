@@ -10,4 +10,4 @@ categories = ["data-structures", "embedded", "no-std"]
 readme = "README.md"
 homepage = "https://github.com/BastiDood/option-block"
 repository = "https://github.com/BastiDood/option-block"
-include = ["src", "CHANGELOG.md", "LICENSE", "README.md"]
+include = ["src", "tests", "CHANGELOG.md", "LICENSE", "README.md"]
