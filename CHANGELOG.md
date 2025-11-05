@@ -1,3 +1,14 @@
+# 0.5.0 (November 6, 2025)
+
+## Now available in `const` contexts!
+
+This release introduces a brand `new` 🥁 constructor that is compatible in `const` contexts. The old `Default` implementation is still available, but moving forward, the `const` constructor is now recommended wherever possible.
+
+```rust
+// You can now use blocks in `static` variables!
+static BLOCK: Block8<u8> = Block8::new();
+```
+
 # 0.4.1 (October 29, 2025)
 
 A minor corrective release that includes the integration tests into the bundled package. No crate behaviors are affected. This is mainly for documentation.
