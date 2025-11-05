@@ -11,6 +11,17 @@ static BLOCK: Block8<u8> = Block8::new();
 
 Various methods throughout the library have also been `const`-ified, allowing basic compile-time initialization of blocks.
 
+```rust
+// Bespoke `const`-initialization is also allowed!
+static BLOCK: Block8<u8> = {
+    let mut block = Block8::new();
+    block.insert(0, 1);
+    block.insert(1, 2);
+    block.insert(2, 3);
+    block
+};
+```
+
 # 0.4.1 (October 29, 2025)
 
 A minor corrective release that includes the integration tests into the bundled package. No crate behaviors are affected. This is mainly for documentation.
