@@ -9,6 +9,8 @@ This release introduces a brand `new` 🥁 constructor that is compatible in `co
 static BLOCK: Block8<u8> = Block8::new();
 ```
 
+Various methods throughout the library have also been `const`-ified, allowing basic compile-time initialization of blocks.
+
 # 0.4.1 (October 29, 2025)
 
 A minor corrective release that includes the integration tests into the bundled package. No crate behaviors are affected. This is mainly for documentation.

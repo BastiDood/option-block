@@ -191,7 +191,7 @@ macro_rules! impl_blocked_optional {
             ///
             /// # Panic
             /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
-            pub fn get(&self, index: usize) -> Option<&T> {
+            pub const fn get(&self, index: usize) -> Option<&T> {
                 if self.is_vacant(index) {
                     None
                 } else {
@@ -207,7 +207,7 @@ macro_rules! impl_blocked_optional {
             /// # Safety
             /// The queried value **must** be properly initialized. Otherwise,
             /// the behavior is undefined.
-            pub unsafe fn get_unchecked_mut(&mut self, index: usize) -> &mut T {
+            pub const unsafe fn get_unchecked_mut(&mut self, index: usize) -> &mut T {
                 unsafe { self.data[index].assume_init_mut() }
             }
 
@@ -216,7 +216,7 @@ macro_rules! impl_blocked_optional {
             ///
             /// # Panic
             /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
-            pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+            pub const fn get_mut(&mut self, index: usize) -> Option<&mut T> {
                 if self.is_vacant(index) {
                     None
                 } else {
@@ -251,7 +251,7 @@ macro_rules! impl_blocked_optional {
             ///
             /// # Panic
             /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
-            pub fn insert(&mut self, index: usize, val: T) -> Option<T> {
+            pub const fn insert(&mut self, index: usize, val: T) -> Option<T> {
                 let vacant = self.is_vacant(index);
                 let uninit_val = core::mem::replace(&mut self.data[index], MaybeUninit::new(val));
                 self.mask |= 1 << index;
@@ -270,7 +270,7 @@ macro_rules! impl_blocked_optional {
             ///
             /// # Panic
             /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
-            pub fn remove(&mut self, index: usize) -> Option<T> {
+            pub const fn remove(&mut self, index: usize) -> Option<T> {
                 if self.is_vacant(index) {
                     return None;
                 }
