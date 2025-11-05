@@ -54,15 +54,7 @@ macro_rules! impl_blocked_optional {
 
         impl<T> Default for $name<T> {
             fn default() -> Self {
-                let block = MaybeUninit::<[MaybeUninit<T>; <$int>::BITS as usize]>::uninit();
-                Self {
-                    // SAFETY: An uninitialized `[MaybeUninit<_>; LEN]` is valid.
-                    // This is supported by the nightly feature: `maybe_uninit_uninit_array`.
-                    // When this feature stabilizes, we may use the `MaybeUninit::uninit_array`
-                    // wrapper method instead, which effectively does the same transformation.
-                    data: unsafe { block.assume_init() },
-                    mask: 0,
-                }
+                Self::new()
             }
         }
 
@@ -150,6 +142,19 @@ macro_rules! impl_blocked_optional {
         impl<T> $name<T> {
             /// Maximum capacity of the fixed-size block.
             pub const CAPACITY: u32 = <$int>::BITS;
+
+            /// Creates a new empty block. Useful in `const` contexts.
+            pub const fn new() -> Self {
+                let block = MaybeUninit::<[MaybeUninit<T>; <$int>::BITS as usize]>::uninit();
+                Self {
+                    // SAFETY: An uninitialized `[MaybeUninit<_>; LEN]` is valid.
+                    // This is supported by the nightly feature: `maybe_uninit_uninit_array`.
+                    // When this feature stabilizes, we may use the `MaybeUninit::uninit_array`
+                    // wrapper method instead, which effectively does the same transformation.
+                    data: unsafe { block.assume_init() },
+                    mask: 0,
+                }
+            }
 
             /// Checks whether the item at the `index` is vacant (i.e. contains `None`).
             ///

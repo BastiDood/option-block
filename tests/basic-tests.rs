@@ -24,7 +24,7 @@ fn size_tests() {
 
 #[test]
 fn insert_replace_semantics() {
-	let mut block = Block8::default();
+	let mut block = Block8::new();
 	assert!(block.is_empty());
 
 	assert!(block.insert(0, 32).is_none());
@@ -74,7 +74,7 @@ fn indexing_operations() {
 
 #[test]
 fn default_getters() {
-	let mut block = Block8::<u16>::default();
+	let mut block = Block8::<u16>::new();
 
 	assert_eq!(block.get_or_else(0, || 5), &mut 5);
 	assert_eq!(block.get_or(1, 10), &mut 10);
@@ -110,7 +110,7 @@ fn mutable_iteration() {
 
 #[test]
 fn mutable_iteration_partial() {
-	let mut block = Block8::<usize>::default();
+	let mut block = Block8::<usize>::new();
 	block.insert(1, 10);
 	block.insert(3, 30);
 	block.insert(5, 50);
@@ -132,7 +132,7 @@ fn mutable_iteration_partial() {
 
 #[test]
 fn empty_block_iteration() {
-	let block = Block8::<usize>::default();
+	let block = Block8::<usize>::new();
 
 	// Empty block should yield no items
 	assert_eq!(block.iter().count(), 0);
@@ -141,13 +141,13 @@ fn empty_block_iteration() {
 
 #[test]
 fn empty_block_mutable_iteration() {
-	let mut block = Block8::<usize>::default();
+	let mut block = Block8::<usize>::new();
 	assert_eq!(block.iter_mut().count(), 0);
 }
 
 #[test]
 fn sparse_block_iteration() {
-	let mut block = Block128::<usize>::default();
+	let mut block = Block128::<usize>::new();
 	// Only populate indices that are prime-ish: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31
 	let indices = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
 	for &idx in &indices {
@@ -164,7 +164,7 @@ fn sparse_block_iteration() {
 
 #[test]
 fn sparse_block_mutable_iteration() {
-	let mut block = Block64::<usize>::default();
+	let mut block = Block64::<usize>::new();
 	let indices = [0, 10, 20, 30, 40, 50, 60, 63];
 	for &idx in &indices {
 		block.insert(idx, idx);
@@ -205,7 +205,7 @@ fn iter_count_matches_length() {
 	assert_eq!(block.iter().count(), 8);
 	assert_eq!(block.len(), 8);
 
-	let mut sparse = Block8::<usize>::default();
+	let mut sparse = Block8::<usize>::new();
 	sparse.insert(0, 10);
 	sparse.insert(3, 30);
 	sparse.insert(7, 70);
@@ -215,7 +215,7 @@ fn iter_count_matches_length() {
 
 #[test]
 fn all_iterator_types_agree() {
-	let mut block = Block32::<usize>::default();
+	let mut block = Block32::<usize>::new();
 	// Populate with pattern
 	for i in 0..Block32::<usize>::CAPACITY as usize {
 		if i % 3 == 0 {

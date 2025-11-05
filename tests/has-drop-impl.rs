@@ -9,7 +9,7 @@ use option_block::{Block8, Block128};
 
 #[test]
 fn block_of_optional_strings() {
-	let mut block = Block8::<String>::default();
+	let mut block = Block8::<String>::new();
 
 	assert!(block.insert(0, String::from("Hello")).is_none());
 	assert!(block.insert(1, String::from("World")).is_none());
@@ -38,7 +38,7 @@ fn block_of_optional_strings() {
 
 #[test]
 fn insert_strings_twice() {
-	let mut block = Block8::<String>::default();
+	let mut block = Block8::<String>::new();
 	assert!(block.insert(0, String::from("Hello")).is_none());
 	assert_eq!(block.insert(0, String::from("World")).as_deref(), Some("Hello"));
 }
@@ -47,7 +47,7 @@ fn insert_strings_twice() {
 fn ensure_zero_resource_leaks() {
 	use std::rc::Rc;
 	let resource = Rc::<str>::from("Hello World");
-	let mut block = Block8::default();
+	let mut block = Block8::new();
 	for i in 0..Block8::<Rc<str>>::CAPACITY as usize {
 		assert!(block.insert(i, resource.clone()).is_none());
 	}
@@ -65,7 +65,7 @@ fn ensure_zero_resource_leaks() {
 fn partial_cloning() {
 	use std::rc::Rc;
 	let resource = Rc::<str>::from("Hello World");
-	let mut block = Block8::default();
+	let mut block = Block8::new();
 	assert!(block.insert(4, resource.clone()).is_none());
 	assert!(block.insert(6, resource.clone()).is_none());
 
@@ -81,7 +81,7 @@ fn partial_cloning() {
 #[test]
 fn default_getters() {
 	use std::rc::Rc;
-	let mut block = Block8::<Rc<u8>>::default();
+	let mut block = Block8::<Rc<u8>>::new();
 	let resource = Rc::new(10);
 
 	assert!(Rc::ptr_eq(block.get_or_else(0, || resource.clone()), &resource));
@@ -241,7 +241,7 @@ fn partial_into_iter_drops_remaining() {
 fn sparse_into_iter_no_leaks() {
 	use std::rc::Rc;
 	let resource = Rc::<str>::from("Sparse Block Test");
-	let mut block = Block8::default();
+	let mut block = Block8::new();
 
 	// Only populate some indices
 	block.insert(1, resource.clone());
@@ -263,7 +263,7 @@ fn sparse_into_iter_no_leaks() {
 fn empty_into_iter_no_drops() {
 	use std::rc::Rc;
 	let resource = Rc::<str>::from("Empty Block");
-	let block = Block8::<Rc<str>>::default();
+	let block = Block8::<Rc<str>>::new();
 
 	assert_eq!(Rc::strong_count(&resource), 1);
 
@@ -279,7 +279,7 @@ fn iter_mut_modifications_preserved() {
 	let resource1 = Rc::<str>::from("First");
 	let resource2 = Rc::<str>::from("Second");
 
-	let mut block = Block8::default();
+	let mut block = Block8::new();
 	block.insert(0, resource1.clone());
 	block.insert(1, resource1.clone());
 
@@ -303,7 +303,7 @@ fn iter_mut_modifications_preserved() {
 fn large_block_iteration_no_leaks() {
 	use std::rc::Rc;
 	let resource = Rc::<str>::from("Large Block");
-	let mut block = Block128::default();
+	let mut block = Block128::new();
 
 	// Populate every 10th index: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 (13 items)
 	for i in (0..128).step_by(10) {

@@ -4,7 +4,7 @@ use option_block::{Block8, Block32, Block64, Block128};
 
 #[test]
 fn sparse_block_iteration() {
-	let mut block = Block128::<usize>::default();
+	let mut block = Block128::<usize>::new();
 	// Only populate indices that are prime-ish: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31
 	let indices = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
 	for &idx in &indices {
@@ -21,7 +21,7 @@ fn sparse_block_iteration() {
 
 #[test]
 fn all_iterator_types_agree() {
-	let mut block = Block32::<usize>::default();
+	let mut block = Block32::<usize>::new();
 	// Populate with pattern
 	for i in 0..Block32::<usize>::CAPACITY as usize {
 		if i % 3 == 0 {
@@ -68,7 +68,7 @@ fn partial_into_iter_with_vec() {
 
 #[test]
 fn iterator_chaining() {
-	let mut block = Block32::<usize>::default();
+	let mut block = Block32::<usize>::new();
 	for i in 0..Block32::<usize>::CAPACITY as usize {
 		if i % 2 == 0 {
 			block.insert(i, i);
