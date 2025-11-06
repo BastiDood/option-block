@@ -246,14 +246,138 @@ macro_rules! impl_blocked_optional {
                 self.get_or_else(index, || val)
             }
 
-            /// Inserts the `val` at the `index`. If a value already exists, it returns `Some`
+            const fn lowest_index(mask: $int) -> Option<u32> {
+                // TODO: Use `lowest_one` when that stabilizes.
+                let index = mask.trailing_zeros();
+                if index < Self::CAPACITY {
+                    Some(index)
+                } else {
+                    None
+                }
+            }
+
+            const fn highest_index(mask: $int) -> Option<u32> {
+                // TODO: Use `highest_one` when that stabilizes.
+                let index = Self::CAPACITY - mask.leading_zeros();
+                if index == 0 {
+                    None
+                } else {
+                    Some(index - 1)
+                }
+            }
+
+            /// Returns the index of the first (i.e., lowest index) non-vacant element in the block.
+            /// Note that a [`u32`] is returned for maximum flexibility, but its value will never
+            /// exceed [`Self::CAPACITY`]. It should be safe to cast to a [`usize`] without loss of
+            /// information. You may also safely `unwrap` the conversion via the [`TryFrom`] trait.
+            pub const fn lowest_occupied_index(&self) -> Option<u32> {
+                Self::lowest_index(self.mask)
+            }
+
+            /// Returns a shared reference to the first non-vacant element in the block.
+            /// Convenience wrapper around [`Self::lowest_occupied_index`] followed by [`Self::get_unchecked`].
+            pub const fn first_occupied(&self) -> Option<&T> {
+                if let Some(index) = self.lowest_occupied_index() {
+                    // SAFETY: This is a valid index according to the bitmask.
+                    Some(unsafe { self.get_unchecked(index as usize) })
+                } else {
+                    None
+                }
+            }
+
+            /// Returns an exclusive reference to the first non-vacant element in the block.
+            /// Convenience wrapper around [`Self::lowest_occupied_index`] followed by [`Self::get_unchecked_mut`].
+            pub const fn first_occupied_mut(&mut self) -> Option<&mut T> {
+                if let Some(index) = self.lowest_occupied_index() {
+                    // SAFETY: This is a valid index according to the bitmask.
+                    Some(unsafe { self.get_unchecked_mut(index as usize) })
+                } else {
+                    None
+                }
+            }
+
+            /// Returns the index of the last (i.e., highest index) non-vacant element in the block.
+            /// Note that a [`u32`] is returned for maximum flexibility, but its value will never
+            /// exceed [`Self::CAPACITY`]. It should be safe to cast to a [`usize`] without loss of
+            /// information. You may also safely `unwrap` the conversion via the [`TryFrom`] trait.
+            pub const fn highest_occupied_index(&self) -> Option<u32> {
+                Self::highest_index(self.mask)
+            }
+
+            /// Returns a shared reference to the last non-vacant element in the block.
+            /// Convenience wrapper around [`Self::highest_occupied_index`] followed by [`Self::get_unchecked`].
+            pub const fn last_occupied(&self) -> Option<&T> {
+                if let Some(index) = self.highest_occupied_index() {
+                    // SAFETY: This is a valid index according to the bitmask.
+                    Some(unsafe { self.get_unchecked(index as usize) })
+                } else {
+                    None
+                }
+            }
+
+            /// Returns an exclusive reference to the last non-vacant element in the block.
+            /// Convenience wrapper around [`Self::highest_occupied_index`] followed by [`Self::get_unchecked_mut`].
+            pub const fn last_occupied_mut(&mut self) -> Option<&mut T> {
+                if let Some(index) = self.highest_occupied_index() {
+                    // SAFETY: This is a valid index according to the bitmask.
+                    Some(unsafe { self.get_unchecked_mut(index as usize) })
+                } else {
+                    None
+                }
+            }
+
+            /// Returns the index of the first (i.e., lowest index) vacant element in the block.
+            /// Note that a [`u32`] is returned for maximum flexibility, but its value will never
+            /// exceed [`Self::CAPACITY`]. It should be safe to cast to a [`usize`] without loss of
+            /// information. You may also safely `unwrap` the conversion via the [`TryFrom`] trait.
+            pub const fn lowest_vacant_index(&self) -> Option<u32> {
+                Self::lowest_index(!self.mask)
+            }
+
+            /// Attempts to insert `value` at the first vacant slot in the block.
+            /// Convenience wrapper around [`Self::lowest_vacant_index`] followed by [`Self::insert`].
+            ///
+            /// # Return Value
+            /// - `Ok(option)` if a vacant slot was found, where `option` is the return value from [`Self::insert`].
+            /// - `Err(value)` if the block is full, returning the original `value` back to the caller.
+            pub const fn insert_at_first_vacancy(&mut self, value: T) -> Result<Option<T>, T> {
+                if let Some(index) = self.lowest_vacant_index() {
+                    Ok(self.insert(index as usize, value))
+                } else {
+                    Err(value)
+                }
+            }
+
+            /// Returns the index of the last (i.e., highest index) vacant element in the block.
+            /// Note that a [`u32`] is returned for maximum flexibility, but its value will never
+            /// exceed [`Self::CAPACITY`]. It should be safe to cast to a [`usize`] without loss of
+            /// information. You may also safely `unwrap` the conversion via the [`TryFrom`] trait.
+            pub const fn highest_vacant_index(&self) -> Option<u32> {
+                Self::highest_index(!self.mask)
+            }
+
+            /// Attempts to insert `value` at the last vacant slot in the block.
+            /// Convenience wrapper around [`Self::highest_vacant_index`] followed by [`Self::insert`].
+            ///
+            /// # Return Value
+            /// - `Ok(option)` if a vacant slot was found, where `option` is the return value from [`Self::insert`].
+            /// - `Err(value)` if the block is full, returning the original `value` back to the caller.
+            pub const fn insert_at_last_vacancy(&mut self, value: T) -> Result<Option<T>, T> {
+                if let Some(index) = self.highest_vacant_index() {
+                    Ok(self.insert(index as usize, value))
+                } else {
+                    Err(value)
+                }
+            }
+
+            /// Inserts the `value` at the `index`. If a value already exists, it returns `Some`
             /// containing the old value. Otherwise, it returns `None`.
             ///
             /// # Panic
             /// Panics if `index >= CAPACITY`. See the [maximum capacity](Self::CAPACITY).
-            pub const fn insert(&mut self, index: usize, val: T) -> Option<T> {
+            pub const fn insert(&mut self, index: usize, value: T) -> Option<T> {
                 let vacant = self.is_vacant(index);
-                let uninit_val = core::mem::replace(&mut self.data[index], MaybeUninit::new(val));
+                let uninit_value = core::mem::replace(&mut self.data[index], MaybeUninit::new(value));
                 self.mask |= 1 << index;
 
                 if vacant {
@@ -261,7 +385,7 @@ macro_rules! impl_blocked_optional {
                 } else {
                     // SAFETY: The slot was occupied before replacement.
                     // Therefore, it has been initialized properly.
-                    Some(unsafe { uninit_val.assume_init() })
+                    Some(unsafe { uninit_value.assume_init() })
                 }
             }
 
