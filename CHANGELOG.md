@@ -1,3 +1,38 @@
+# 0.6.0 (November 7, 2025)
+
+This release introduces brand new helpers for getting the first and last elements of a block.
+
+## New Getters for the First Occupied Element
+
+- `lowest_occupied_index` returns the index of the first occupied element in the block.
+- `first_occupied` returns a shared reference to the first occupied element in the block.
+- `first_occupied_mut` returns an exclusive reference to the first occupied element in the block.
+
+## New Getters for the Last Occupied Element
+
+- `highest_occupied_index` returns the index of the last occupied element in the block.
+- `last_occupied` returns a shared reference to the last occupied element in the block.
+- `last_occupied_mut` returns an exclusive reference to the last occupied element in the block.
+
+## New Getters for the First Vacant Element
+
+- `lowest_vacant_index` returns the index of the first vacant element in the block.
+- `first_vacant` returns a shared reference to the first vacant element in the block.
+- `first_vacant_mut` returns an exclusive reference to the first vacant element in the block.
+
+## New Getters for the Last Vacant Element
+
+- `highest_vacant_index` returns the index of the last vacant element in the block.
+- `last_vacant` returns a shared reference to the last vacant element in the block.
+- `last_vacant_mut` returns an exclusive reference to the last vacant element in the block.
+
+## New Inserters into Vacant Slots
+
+- `insert_at_first_vacancy` inserts a value into the first vacancy of the block.
+- `insert_at_last_vacancy` inserts a value into the last vacancy of the block.
+
+## New Setters
+
 # 0.5.0 (November 6, 2025)
 
 ## Now available in `const` contexts!
