@@ -31,8 +31,6 @@ This release introduces brand new helpers for getting the first and last element
 - `insert_at_first_vacancy` inserts a value into the first vacancy of the block.
 - `insert_at_last_vacancy` inserts a value into the last vacancy of the block.
 
-## New Setters
-
 # 0.5.0 (November 6, 2025)
 
 ## Now available in `const` contexts!
